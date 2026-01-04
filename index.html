@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dolphin规则编辑器</title>
     <style>
+        /* 全局样式重置 */
         * {
             margin: 0;
             padding: 0;
@@ -12,46 +13,51 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            font-size: 14px;
-            line-height: 1.5;
-            color: #333;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
             background-color: #f0f2f5;
+            color: #333;
+            line-height: 1.5;
         }
 
+        /* 应用容器样式 */
         .app-container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
+            background-color: white;
+            min-height: 100vh;
         }
 
+        /* 头部样式 */
         .header {
-            background-color: #fff;
-            padding: 16px 20px;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e8e8e8;
         }
 
         .header h1 {
-            font-size: 18px;
+            font-size: 24px;
             font-weight: 600;
-            margin-bottom: 8px;
+            color: #262626;
         }
 
+        /* 头部操作按钮 */
         .header-actions {
             display: flex;
             gap: 12px;
         }
 
         .btn {
-            padding: 6px 12px;
+            padding: 8px 16px;
             border: 1px solid #d9d9d9;
             border-radius: 4px;
             background-color: #fff;
             color: #333;
+            font-size: 14px;
             cursor: pointer;
-            font-size: 12px;
             transition: all 0.3s;
             min-width: 60px;
         }
@@ -65,8 +71,6 @@
             background-color: #1890ff;
             border-color: #1890ff;
             color: #fff;
-            font-size: 14px;
-            padding: 8px 16px;
         }
 
         .btn-primary:hover {
@@ -74,242 +78,249 @@
             border-color: #40a9ff;
         }
 
-        /* 表格布局样式 */
-        .table-container {
-            background-color: #fff;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            margin-bottom: 20px;
+        .btn-secondary {
+            background-color: #f0f0f0;
+            color: #333;
         }
 
-        .rule-table {
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+
+        /* 规则编辑器表格布局 */
+        .rule-editor {
+            margin-bottom: 30px;
+            background-color: #fafafa;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            overflow: hidden;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            padding: 20px 20px 10px;
+            color: #333;
+        }
+
+        /* 规则决策表格样式 */
+        .rule-decision-table {
             width: 100%;
             border-collapse: collapse;
         }
 
-        .rule-table th,
-        .rule-table td {
-            padding: 12px 16px;
-            border-bottom: 1px solid #f0f0f0;
+        .rule-decision-table th,
+        .rule-decision-table td {
+            padding: 15px;
             text-align: left;
-            vertical-align: top;
+            border-bottom: 1px solid #e0e0e0;
         }
 
-        .rule-table th {
-            background-color: #fafafa;
+        /* 第三列内容居中 */
+        .rule-decision-table td:nth-child(3) {
+            text-align: center;
+        }
+
+        .rule-decision-table th {
+            background-color: #f0f0f0;
             font-weight: 600;
-            font-size: 14px;
             color: #333;
         }
 
-        .rule-table tr:hover {
-            background-color: #f5f7fa;
-        }
-
-        /* 决策配置区域样式 */
-        .decision-config {
-            margin-top: 8px;
-        }
-
-        .decision-config-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
-            padding: 8px;
-            background-color: #fafafa;
-            border-radius: 4px;
-            border: 1px solid #e8e8e8;
-        }
-
-        .decision-config-item select,
-        .decision-config-item input {
-            padding: 4px 8px;
-            border: 1px solid #d9d9d9;
-            border-radius: 4px;
-            font-size: 13px;
-        }
-
-        .decision-config-item select {
-            min-width: 80px;
-        }
-
-        .decision-config-item .action-key {
-            width: 80px;
-        }
-
-        .decision-config-item .action-value {
-            width: 120px;
-        }
-
-        /* 拖动功能样式 */
-        .drag-handle {
-            cursor: move;
-            color: #999;
-            padding: 0 8px;
-            font-weight: bold;
-        }
-
-        .rule-table tr {
-            cursor: grab;
-            transition: background-color 0.2s;
-        }
-
-        .rule-table tr:active {
-            cursor: grabbing;
-        }
-
-        .rule-table tr.dragging {
-            opacity: 0.5;
-            background-color: #e6f7ff !important;
-        }
-
-        .rule-table tr.drag-over {
-            border-top: 2px solid #1890ff;
-        }
-
-        .panel {
-            background-color: #fff;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-        }
-
-        .panel-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .rule-list {
-            margin-bottom: 16px;
-        }
-
+        /* 规则项样式 */
         .rule-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px;
-            border: 1px solid #e8e8e8;
-            border-radius: 4px;
-            margin-bottom: 8px;
-            background-color: #fafafa;
+            background-color: white;
         }
 
-        .rule-expression {
-            flex: 1;
+        /* 规则名称输入 */
+        .rule-name input {
+            width: 100%;
             padding: 8px 12px;
             border: 1px solid #d9d9d9;
             border-radius: 4px;
             font-size: 14px;
-            transition: all 0.3s;
-            background-color: #fff;
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
         }
 
-        .rule-expression:focus {
+        /* 规则表达式输入 */
+        .rule-expression input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        }
+
+        /* 规则操作按钮 */
+        .rule-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        /* 拖放样式 */
+        .rule-item.dragging {
+            opacity: 0.5;
+            background-color: #e6f7ff;
+        }
+
+        .rule-item.dragover {
+            background-color: #f0f5ff;
+            border-bottom: 2px solid #1890ff;
+        }
+
+        /* 决策列表样式 */
+        .decision-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* 决策项样式 */
+        .decision-item {
+            background-color: white;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+
+        /* 决策头部样式 */
+        .decision-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .decision-type {
+            font-weight: 500;
+            color: #333;
+        }
+
+        /* 动作列表样式 */
+        .action-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* 动作行样式 */
+        .action-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .action-select, .action-input {
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .action-select:focus, .action-input:focus {
             outline: none;
             border-color: #1890ff;
             box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
         }
 
-        .decision-list {
-            margin-bottom: 16px;
+        .action-select {
+            min-width: 120px;
         }
 
-        .decision-item {
-            margin-bottom: 16px;
+        .action-input {
+            flex: 1;
+            min-width: 150px;
         }
 
-        .decision-title {
-            font-weight: 500;
-            margin-bottom: 8px;
+        /* 测试部分样式 */
+        .test-section {
+            margin-top: 30px;
+            background-color: #fafafa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .test-inputs h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
             color: #333;
         }
 
-        .action-row {
+        /* 测试数据网格布局 */
+        .test-data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .test-data-item {
             display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 0;
-            background-color: #fafafa;
-            border: 1px solid #e8e8e8;
-            border-radius: 4px;
-            padding: 12px;
-            margin-bottom: 8px;
+            flex-direction: column;
+            gap: 4px;
         }
 
-        .action-target {
-            width: 110px;
+        .test-data-item label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .test-data-item input {
             padding: 6px 8px;
             border: 1px solid #d9d9d9;
             border-radius: 4px;
             font-size: 14px;
-            background-color: #fff;
         }
 
-        .action-type {
-            width: 90px;
-            padding: 6px 8px;
-            border: 1px solid #d9d9d9;
-            border-radius: 4px;
-            font-size: 14px;
-            background-color: #fff;
+        .test-data-item input:focus {
+            outline: none;
+            border-color: #1890ff;
         }
 
-        .action-key {
-            width: 100px;
-            padding: 6px 8px;
-            border: 1px solid #d9d9d9;
-            border-radius: 4px;
-            font-size: 14px;
-            background-color: #fff;
-        }
-
-        .action-value {
-            flex: 1;
-            padding: 6px 8px;
-            border: 1px solid #d9d9d9;
-            border-radius: 4px;
-            font-size: 14px;
-            background-color: #fff;
-        }
-
-        .test-section {
-            background-color: #fff;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            margin-top: 20px;
-        }
-
+        /* 测试输入文本区域 */
         .test-input {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             border: 1px solid #d9d9d9;
             border-radius: 4px;
-            font-size: 13px;
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            min-height: 120px;
-            margin-bottom: 16px;
+            font-size: 14px;
+            margin-bottom: 15px;
             resize: vertical;
+            min-height: 100px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
         }
 
+        /* 测试结果样式 */
         .test-results {
-            margin-top: 16px;
-            padding: 16px;
-            background-color: #f5f7fa;
-            border-radius: 4px;
-            border: 1px solid #e4e7ed;
+            background-color: white;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            margin-top: 15px;
+        }
+
+        /* 测试结果详情样式 */
+        .test-results-details {
+            background-color: white;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            margin-top: 15px;
         }
 
         .result-item {
-            margin-bottom: 8px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #e8e8e8;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f0f0f0;
         }
 
         .result-item:last-child {
@@ -317,119 +328,169 @@
             padding-bottom: 0;
             border-bottom: none;
         }
+
+        .result-label {
+            font-weight: 500;
+            color: #333;
+            margin-right: 10px;
+        }
+
+        .result-value {
+            font-family: 'Courier New', monospace;
+            background-color: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        /* 结果摘要 */
+        .result-summary {
+            margin-bottom: 12px;
+            padding: 8px 12px;
+            background-color: #f6ffed;
+            border: 1px solid #b7eb8f;
+            border-radius: 4px;
+            color: #52c41a;
+        }
+
+        /* 结果轨迹 */
+        .result-trace {
+            margin-bottom: 12px;
+            padding: 8px 12px;
+            background-color: #fafafa;
+            border-radius: 4px;
+        }
+
+        .result-trace h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #666;
+        }
+
+        .result-trace ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .result-trace li {
+            padding: 6px 12px;
+            margin-bottom: 4px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        /* 轨迹通过和失败样式 */
+        .trace-passed {
+            background-color: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+
+        .trace-failed {
+            background-color: #fff2f0;
+            color: #ff4d4f;
+            border: 1px solid #ffccc7;
+        }
     </style>
-    <!-- React CDN -->
-    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body>
     <div id="root"></div>
 
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
     <script type="text/babel">
         const { useState } = React;
 
-        function App() {
-            // 修改数据结构：每个规则包含自己的决策配置
+        const App = () => {
+            // 规则数据状态 - 每个规则包含自己的决策
             const [rules, setRules] = useState([
                 {
-                    id: 1,
-                    expression: 'age >= 18',
-                    name: 'New Rule 1',
+                    id: 1, 
+                    name: '规则1', 
+                    expression: 'age >= 18', 
+                    action: '通过', 
                     decisions: [
-                        { id: 1, type: 'SET', key: 'result', value: 'true', target: 'ML_DECISION' }
+                        {
+                            id: 1,
+                            name: '规则1决策',
+                            actions: [
+                                { type: 'SET', key: 'result', value: 'true', target: 'ML_DECISION' }
+                            ]
+                        }
                     ]
                 },
                 {
-                    id: 2,
-                    expression: 'age <= 18',
-                    name: 'New Rule 2',
+                    id: 2, 
+                    name: '规则2', 
+                    expression: 'age <= 18', 
+                    action: '拒绝', 
                     decisions: [
-                        { id: 1, type: 'SET', key: 'result', value: 'false', target: 'ML_DECISION' }
+                        {
+                            id: 2,
+                            name: '规则2决策',
+                            actions: [
+                                { type: 'SET', key: 'result', value: 'false', target: 'ML_DECISION' },
+                                { type: 'INCR', key: 'key', value: 'Value' }
+                            ]
+                        }
                     ]
                 }
             ]);
 
-            // 跟踪当前决策ID，用于生成新决策
-            const [decisionIdCounter, setDecisionIdCounter] = useState(3);
-
-            const [testInput, setTestInput] = useState('{ "age": 28 }');
-            const [testResult, setTestResult] = useState(null);
-
-            // 拖放功能状态
+            // 拖拽功能状态
             const [draggingId, setDraggingId] = useState(null);
             const [dragOverId, setDragOverId] = useState(null);
+            
+            // 测试数据状态
+            const [testInput, setTestInput] = useState('{ "age": 28 }');
+            const [testResult, setTestResult] = useState(null);
+            const [showTestResult, setShowTestResult] = useState(false);
+            const [resultTrace, setResultTrace] = useState([]);
 
-            // 更新规则名称
-            const handleRuleNameChange = (id, value) => {
-                setRules(rules.map(rule => 
-                    rule.id === id ? { ...rule, name: value } : rule
-                ));
-            };
-
-            // 更新规则表达式
-            const handleRuleExpressionChange = (id, value) => {
-                setRules(rules.map(rule => 
-                    rule.id === id ? { ...rule, expression: value } : rule
-                ));
-            };
-
-            // 拖放功能事件处理
-            const handleDragStart = (e, id) => {
+            // 拖拽事件处理函数
+            const handleDragStart = (id) => {
                 setDraggingId(id);
-                e.dataTransfer.setData('text/plain', id);
             };
 
             const handleDragOver = (e) => {
                 e.preventDefault();
             };
 
-            const handleDragEnter = (e, id) => {
-                e.preventDefault();
-                setDragOverId(id);
+            const handleDragEnter = (id) => {
+                if (id !== draggingId) {
+                    setDragOverId(id);
+                }
             };
 
-            const handleDragLeave = (e, id) => {
+            const handleDragLeave = () => {
                 setDragOverId(null);
             };
 
-            const handleDrop = (e, targetId) => {
-                e.preventDefault();
-                setDragOverId(null);
-                
-                const sourceId = parseInt(e.dataTransfer.getData('text/plain'));
-                if (sourceId === targetId) return;
+            const handleDrop = (dropId) => {
+                if (draggingId === dropId) return;
 
-                // 重新排序规则
+                const draggingIndex = rules.findIndex(r => r.id === draggingId);
+                const dropIndex = rules.findIndex(r => r.id === dropId);
+
                 const newRules = [...rules];
-                const sourceIndex = newRules.findIndex(rule => rule.id === sourceId);
-                const targetIndex = newRules.findIndex(rule => rule.id === targetId);
-                
-                // 移除源元素
-                const [removed] = newRules.splice(sourceIndex, 1);
-                // 插入到目标位置
-                newRules.splice(targetIndex, 0, removed);
-                
+                const [draggedRule] = newRules.splice(draggingIndex, 1);
+                newRules.splice(dropIndex, 0, draggedRule);
+
                 setRules(newRules);
                 setDraggingId(null);
+                setDragOverId(null);
             };
 
-            // 更新决策配置
-            const handleDecisionChange = (ruleId, decisionId, field, value) => {
-                setRules(rules.map(rule => {
-                    if (rule.id === ruleId) {
-                        return {
-                            ...rule,
-                            decisions: rule.decisions.map(decision => {
-                                if (decision.id === decisionId) {
-                                    return { ...decision, [field]: value };
-                                }
-                                return decision;
-                            })
-                        };
-                    }
-                    return rule;
-                }));
+            // 更新规则名称
+            const updateRuleName = (id, name) => {
+                setRules(rules.map(rule => rule.id === id ? { ...rule, name } : rule));
+            };
+
+            // 更新规则表达式
+            const updateRuleExpression = (id, expression) => {
+                setRules(rules.map(rule => rule.id === id ? { ...rule, expression } : rule));
             };
 
             // 添加新规则
@@ -438,120 +499,171 @@
                 setRules([...rules, { 
                     id: newId, 
                     expression: '', 
-                    name: `New Rule ${newId}`,
+                    name: `新规则名： ${newId}`,
+                    description: '',
+                    action: '',
                     decisions: [
-                        { id: decisionIdCounter, type: 'SET', key: '', value: '', target: 'ML_DECISION' }
+                        {
+                            id: newId,
+                            name: `规则${newId}决策`,
+                            actions: [
+                                { type: 'SET', key: '', value: '', target: 'ML_DECISION' }
+                            ]
+                        }
                     ]
                 }]);
-                setDecisionIdCounter(decisionIdCounter + 1);
             };
 
-            // 为特定规则添加新决策
-            const addDecision = (ruleId) => {
-                const newDecision = {
-                    id: decisionIdCounter,
-                    type: 'SET',
-                    key: '',
-                    value: '',
-                    target: 'ML_DECISION'
-                };
-
-                setRules(rules.map(rule => {
-                    if (rule.id === ruleId) {
-                        return {
-                            ...rule,
-                            decisions: [...rule.decisions, newDecision]
-                        };
-                    }
-                    return rule;
-                }));
-
-                setDecisionIdCounter(decisionIdCounter + 1);
-            };
-
-            // 复制规则行
-            const handleCopyRule = (ruleId) => {
-                const ruleToCopy = rules.find(rule => rule.id === ruleId);
-                if (!ruleToCopy) return;
-                
-                // 生成新规则ID
-                const newRuleId = Math.max(...rules.map(r => r.id)) + 1;
-                
-                // 复制决策并更新ID
-                const copiedDecisions = ruleToCopy.decisions.map(decision => {
-                    const newDecisionId = decisionIdCounter;
-                    setDecisionIdCounter(prev => prev + 1);
-                    return { ...decision, id: newDecisionId };
-                });
-                
-                // 创建新规则
-                const newRule = {
-                    ...ruleToCopy,
-                    id: newRuleId,
-                    name: `${ruleToCopy.name} (复制)`,
-                    decisions: copiedDecisions
-                };
-                
-                // 添加到规则列表
-                setRules(prevRules => [...prevRules, newRule]);
-            };
-
-            // 删除规则行
-            const handleDeleteRule = (ruleId) => {
-                // 确保至少保留一条规则
+            // 删除规则
+            const handleDeleteRule = (id) => {
                 if (rules.length <= 1) {
                     alert('至少需要保留一条规则');
                     return;
                 }
-                
-                setRules(rules.filter(rule => rule.id !== ruleId));
+                setRules(rules.filter(rule => rule.id !== id));
             };
 
-            // 删除特定规则的决策
-            const deleteDecision = (ruleId, decisionId) => {
+            // 复制规则
+            const handleCopyRule = (id) => {
+                const ruleToCopy = rules.find(rule => rule.id === id);
+                if (!ruleToCopy) return;
+                
+                const newId = Math.max(...rules.map(r => r.id)) + 1;
+                const newRule = {
+                    ...ruleToCopy,
+                    id: newId,
+                    name: `${ruleToCopy.name} (复制)`,
+                    decisions: ruleToCopy.decisions.map(decision => ({
+                        ...decision,
+                        id: newId,
+                        name: `${decision.name} (复制)`
+                    }))
+                };
+                
+                setRules([...rules, newRule]);
+            };
+
+            // 处理动作变更
+            const handleActionChange = (ruleId, decisionId, actionIndex, field, value) => {
                 setRules(rules.map(rule => {
                     if (rule.id === ruleId) {
-                        return {
-                            ...rule,
-                            decisions: rule.decisions.filter(decision => decision.id !== decisionId)
+                        const updatedDecisions = rule.decisions.map(decision => {
+                            if (decision.id === decisionId) {
+                                const updatedActions = [...decision.actions];
+                                updatedActions[actionIndex] = { ...updatedActions[actionIndex], [field]: value };
+                                return { ...decision, actions: updatedActions };
+                            }
+                            return decision;
+                        });
+                        return { ...rule, decisions: updatedDecisions };
+                    }
+                    return rule;
+                }));
+            };
+
+            // 添加新的决策动作
+            const addNewDecisionAction = (ruleId, decisionId) => {
+                setRules(rules.map(rule => {
+                    if (rule.id === ruleId) {
+                        const updatedDecisions = rule.decisions.map(decision => {
+                            if (decision.id === decisionId) {
+                                return { 
+                                    ...decision, 
+                                    actions: [...decision.actions, { type: 'SET', key: '', value: '', target: 'ML_DECISION' }]
+                                };
+                            }
+                            return decision;
+                        });
+                        return { ...rule, decisions: updatedDecisions };
+                    }
+                    return rule;
+                }));
+            };
+
+            // 删除决策动作
+            const deleteDecisionAction = (ruleId, decisionId, actionIndex) => {
+                setRules(rules.map(rule => {
+                    if (rule.id === ruleId) {
+                        const updatedDecisions = rule.decisions.map(decision => {
+                            if (decision.id === decisionId) {
+                                if (decision.actions.length <= 1) {
+                                    alert('至少需要保留一个动作');
+                                    return decision;
+                                }
+                                const updatedActions = [...decision.actions];
+                                updatedActions.splice(actionIndex, 1);
+                                return { ...decision, actions: updatedActions };
+                            }
+                            return decision;
+                        });
+                        return { ...rule, decisions: updatedDecisions };
+                    }
+                    return rule;
+                }));
+            };
+
+            // 添加新的决策项
+            const addNewDecision = (ruleId) => {
+                setRules(rules.map(rule => {
+                    if (rule.id === ruleId) {
+                        const newDecisionId = Math.max(...rule.decisions.map(d => d.id), 0) + 1;
+                        return { 
+                            ...rule, 
+                            decisions: [...rule.decisions, {
+                                id: newDecisionId,
+                                name: `决策${newDecisionId}`,
+                                actions: [{ type: 'SET', key: '', value: '', target: 'ML_DECISION' }]
+                            }]
                         };
                     }
                     return rule;
                 }));
             };
 
+            // 删除决策项
+            const deleteDecision = (ruleId, decisionId) => {
+                setRules(rules.map(rule => {
+                    if (rule.id === ruleId) {
+                        // 确保至少保留一个决策项
+                        if (rule.decisions.length > 1) {
+                            return { 
+                                ...rule, 
+                                decisions: rule.decisions.filter(d => d.id !== decisionId)
+                            };
+                        }
+                    }
+                    return rule;
+                }));
+            };
+
+            // 处理测试输入变更
+            const handleTestInputChange = (e) => {
+                setTestInput(e.target.value);
+            };
+
+            // 运行测试
             const runTest = () => {
                 try {
                     const input = JSON.parse(testInput);
                     const results = rules.map(rule => {
                         try {
-                            let isMatch = false;
+                            // 使用eval执行规则表达式，实际生产环境应使用更安全的方式
+                            const age = input.age;
+                            const balance = input.balance || 0;
+                            const score = input.score || 0;
+                            const hasBadRecord = input.hasBadRecord || false;
+                            const level = input.level || '';
+                            const points = input.points || 0;
                             
-                            if (rule.expression.includes('>=')) {
-                                const [field, value] = rule.expression.split('>=');
-                                isMatch = input[field.trim()] >= Number(value.trim());
-                            } else if (rule.expression.includes('<=')) {
-                                const [field, value] = rule.expression.split('<=');
-                                isMatch = input[field.trim()] <= Number(value.trim());
-                            } else if (rule.expression.includes('==')) {
-                                const [field, value] = rule.expression.split('==');
-                                isMatch = input[field.trim()] == value.trim().replace(/'/g, '');
-                            } else if (rule.expression.includes('>')) {
-                                const [field, value] = rule.expression.split('>');
-                                isMatch = input[field.trim()] > Number(value.trim());
-                            } else if (rule.expression.includes('<')) {
-                                const [field, value] = rule.expression.split('<');
-                                isMatch = input[field.trim()] < Number(value.trim());
-                            } else if (rule.expression.includes('!=')) {
-                                const [field, value] = rule.expression.split('!=');
-                                isMatch = input[field.trim()] != value.trim().replace(/'/g, '');
-                            }
+                            // 处理level字符串比较
+                            const processedExpression = rule.expression.replace(/level\s*==\s*([A-Z]+)/g, (match, p1) => `level == '${p1}'`);
+                            const isMatch = eval(processedExpression);
                             
                             return { 
                                 ruleName: rule.name, 
                                 expression: rule.expression, 
                                 matched: isMatch,
-                                decision: rule.decisions // 使用规则自己的决策配置
+                                decision: isMatch ? rule.decisions[0].actions : []
                             };
                         } catch (error) {
                             return { 
@@ -562,7 +674,22 @@
                             };
                         }
                     });
-                    setTestResult(results);
+                    
+                    // 生成测试轨迹
+                    const trace = results.map(result => ({
+                        ruleName: result.ruleName,
+                        expression: result.expression,
+                        passed: result.matched,
+                        result: result.matched ? '通过' : result.error ? `错误: ${result.error}` : '未通过'
+                    }));
+                    
+                    // 找到第一个匹配的规则结果
+                    const firstMatch = results.find(result => result.matched);
+                    const finalResult = firstMatch ? '规则命中' : '未命中任何规则';
+                    
+                    setTestResult({ results, finalResult });
+                    setResultTrace(trace);
+                    setShowTestResult(true);
                 } catch (error) {
                     alert('输入JSON格式错误: ' + error.message);
                 }
@@ -573,171 +700,196 @@
                     <div className="header">
                         <h1>规则组：规则组1</h1>
                         <div className="header-actions">
-                            <button className="btn">取消</button>
-                            <button className="btn">确定</button>
+                            <button className="btn btn-secondary">取消</button>
+                            <button className="btn btn-secondary">确定</button>
                             <button className="btn btn-primary">保存并启用</button>
                         </div>
                     </div>
 
-                    <div className="table-container">
-                        <table className="rule-table">
+                    <div className="rule-editor">
+                        <div className="section-title">规则与决策</div>
+                        <table className="rule-decision-table">
                             <thead>
                                 <tr>
-                                    <th style={{ width: '40px' }}></th>
-                                    <th>规则行</th>
-                                    <th>表达式</th>
-                                    <th>决策</th>
-                                    <th>操作</th>
+                                    <th style={{ width: '5%' }}>序号</th>
+                                    <th style={{ width: '30%' }}>规则列</th>
+                                    <th style={{ width: '45%' }}>决策列</th>
+                                    <th style={{ width: '20%' }}>操作列</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {rules.map((rule, index) => (
                                     <tr 
                                         key={rule.id} 
+                                        className={`rule-item ${draggingId === rule.id ? 'dragging' : dragOverId === rule.id ? 'dragover' : ''}`}
                                         draggable="true"
-                                        onDragStart={(e) => handleDragStart(e, rule.id)}
-                                        onDragOver={(e) => handleDragOver(e)}
-                                        onDragEnter={(e) => handleDragEnter(e, rule.id)}
-                                        onDragLeave={(e) => handleDragLeave(e, rule.id)}
-                                        onDrop={(e) => handleDrop(e, rule.id)}
-                                        className={draggingId === rule.id ? 'dragging' : dragOverId === rule.id ? 'drag-over' : ''}
+                                        onDragStart={() => handleDragStart(rule.id)}
+                                        onDragOver={handleDragOver}
+                                        onDragEnter={() => handleDragEnter(rule.id)}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={() => handleDrop(rule.id)}
                                     >
+                                        <td style="text-align: center;">{index + 1}</td>
                                         <td>
-                                            <div className="drag-handle">☰</div>
-                                        </td>
-                                        <td>
-                                            <input
-                                                type="text"
-                                                value={rule.name}
-                                                onChange={(e) => handleRuleNameChange(rule.id, e.target.value)}
-                                                placeholder="规则名称"
-                                                style={{ fontWeight: '500', marginBottom: '4px', padding: '4px 8px', border: '1px solid #d9d9d9', borderRadius: '4px', width: '100%' }}
-                                            />
-                                        </td>
-                                        <td>
-                                            <input
-                                                type="text"
-                                                className="rule-expression"
-                                                value={rule.expression}
-                                                onChange={(e) => handleRuleExpressionChange(rule.id, e.target.value)}
-                                                placeholder="输入规则表达式，例如：age >= 18"
-                                                style={{ width: '100%' }}
-                                            />
-                                        </td>
-                                        <td>
-                                            <div className="decision-config">
-                                                {rule.decisions.map((decision) => (
-                                                    <div key={decision.id} className="decision-config-item">
-                                                        <select
-                                                            value={decision.target}
-                                                            onChange={(e) => handleDecisionChange(rule.id, decision.id, 'target', e.target.value)}
-                                                        >
-                                                            <option value="ML_DECISION">ML_DECISION</option>
-                                                            <option value="OTHER">OTHER</option>
-                                                        </select>
-                                                        <select
-                                                            value={decision.type}
-                                                            onChange={(e) => handleDecisionChange(rule.id, decision.id, 'type', e.target.value)}
-                                                        >
-                                                            <option value="SET">SET</option>
-                                                            <option value="INCR">INCR</option>
-                                                            <option value="RETURN">RETURN</option>
-                                                        </select>
-                                                        <input
-                                                            type="text"
-                                                            className="action-key"
-                                                            value={decision.key}
-                                                            onChange={(e) => handleDecisionChange(rule.id, decision.id, 'key', e.target.value)}
-                                                            placeholder="key"
-                                                        />
-                                                        <span style={{ color: '#999' }}>=</span>
-                                                        <input
-                                                            type="text"
-                                                            className="action-value"
-                                                            value={decision.value}
-                                                            onChange={(e) => handleDecisionChange(rule.id, decision.id, 'value', e.target.value)}
-                                                            placeholder="value"
-                                                        />
-                                                        <button
-                                                            className="btn"
-                                                            onClick={() => deleteDecision(rule.id, decision.id)}
-                                                            style={{ fontSize: '12px', padding: '2px 6px', color: '#ff4d4f', borderColor: '#ff4d4f' }}
-                                                        >
-                                                            删除
-                                                        </button>
-                                                    </div>
-                                                ))}
-                                                <button
-                                                    className="btn"
-                                                    onClick={() => addDecision(rule.id)}
-                                                    style={{ fontSize: '12px', padding: '4px 8px', marginTop: '4px' }}
-                                                >
-                                                    + 添加决策
-                                                </button>
+                                            <div className="rule-name">
+                                                <input
+                                                    type="text"
+                                                    value={rule.name}
+                                                    onChange={(e) => updateRuleName(rule.id, e.target.value)}
+                                                    placeholder="规则名称"
+                                                />
+                                            </div>
+                                            <div className="rule-expression">
+                                                <input
+                                                    type="text"
+                                                    value={rule.expression}
+                                                    onChange={(e) => updateRuleExpression(rule.id, e.target.value)}
+                                                    placeholder="输入规则表达式，例如：age >= 18"
+                                                />
                                             </div>
                                         </td>
                                         <td>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                                <button className="btn">编辑</button>
-                                                <button className="btn" onClick={() => handleCopyRule(rule.id)}>复制</button>
-                                                <button className="btn" onClick={() => handleDeleteRule(rule.id)}>删除</button>
+                                            {rule.decisions.map((decision) => (
+                                                <div key={decision.id} className="decision-item">
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                                        <h4 style={{ margin: 0 }}>{decision.name}</h4>
+                                                        <button 
+                                                            className="btn btn-small btn-secondary"
+                                                            onClick={() => deleteDecision(rule.id, decision.id)}
+                                                            title="删除决策项"
+                                                        >
+                                                            删除决策
+                                                        </button>
+                                                    </div>
+                                                    <div className="action-list">
+                                                        {decision.actions.map((action, actionIndex) => (
+                                                            <div key={actionIndex} className="action-row">
+                                                                <select
+                                                                    className="action-select"
+                                                                    value={action.target}
+                                                                    onChange={(e) => handleActionChange(rule.id, decision.id, actionIndex, 'target', e.target.value)}
+                                                                >
+                                                                    <option value="ML_DECISION">ML_DECISION</option>
+                                                                </select>
+                                                                <select
+                                                                    className="action-select"
+                                                                    value={action.type}
+                                                                    onChange={(e) => handleActionChange(rule.id, decision.id, actionIndex, 'type', e.target.value)}
+                                                                >
+                                                                    <option value="SET">SET</option>
+                                                                    <option value="INCR">INCR</option>
+                                                                </select>
+                                                                <input
+                                                                    type="text"
+                                                                    className="action-input"
+                                                                    value={action.key}
+                                                                    onChange={(e) => handleActionChange(rule.id, decision.id, actionIndex, 'key', e.target.value)}
+                                                                    placeholder="key"
+                                                                />
+                                                                <input
+                                                                    type="text"
+                                                                    className="action-input"
+                                                                    value={action.value}
+                                                                    onChange={(e) => handleActionChange(rule.id, decision.id, actionIndex, 'value', e.target.value)}
+                                                                    placeholder="value"
+                                                                />
+                                                                <button className="btn btn-small btn-secondary" onClick={() => deleteDecisionAction(rule.id, decision.id, actionIndex)}>删除动作</button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                    <button 
+                                                        className="btn btn-small btn-secondary"
+                                                        onClick={() => addNewDecisionAction(rule.id, decision.id)}
+                                                        style={{ marginTop: '8px' }}
+                                                    >
+                                                        + 添加决策
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </td>
+                                        <td>
+                                            <div className="rule-actions">
+                                                <button className="btn btn-small btn-secondary" onClick={() => handleCopyRule(rule.id)}>复制行</button>
+                                                <button className="btn btn-small btn-secondary" onClick={() => handleDeleteRule(rule.id)}>删除行</button>
                                             </div>
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
-                        <div style={{ padding: '12px 16px', backgroundColor: '#fafafa', borderTop: '1px solid #f0f0f0' }}>
-                            <button className="btn" onClick={addNewRule}>
+                        <div style={{ padding: '20px' }}>
+                            <button className="btn btn-secondary" onClick={addNewRule}>
                                 + 添加规则
                             </button>
                         </div>
                     </div>
 
-                    <div className="panel test-section">
-                        <div className="panel-title">测试</div>
+                    <div className="test-section">
+                        <div className="section-title">测试</div>
                         <textarea
                             className="test-input"
                             value={testInput}
-                            onChange={(e) => setTestInput(e.target.value)}
-                            placeholder='输入测试数据，例如：{ "age": 28 }'
+                            onChange={handleTestInputChange}
+                            placeholder="输入测试数据，例如：{ &quot;age&quot;: 28 }"
                         ></textarea>
                         <button className="btn btn-primary" onClick={runTest}>
                             运行测试
                         </button>
                         
-                        {testResult && (
+                        {showTestResult && testResult && (
                             <div className="test-results">
                                 <h3>测试结果</h3>
-                                {testResult.map((result, index) => (
-                                    <div key={index} className="result-item">
-                                        <div>
-                                            <strong>规则:</strong> {result.ruleName}
-                                        </div>
-                                        <div>
-                                            <strong>表达式:</strong> {result.expression}
-                                        </div>
-                                        <div>
-                                            <strong>匹配结果:</strong> {result.matched ? 'true' : 'false'}
-                                        </div>
-                                        {result.error && (
+                                <div className="result-summary">
+                                    <strong>最终结果:</strong> {testResult.finalResult}
+                                </div>
+                                <div className="result-trace">
+                                    <h4>规则执行轨迹:</h4>
+                                    <ul>
+                                        {resultTrace.map((trace, index) => (
+                                            <li key={index} className={trace.passed ? 'trace-passed' : 'trace-failed'}>
+                                                <strong>{trace.ruleName}:</strong> {trace.expression} - {trace.result}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                                <div className="test-results-details">
+                                    {testResult.results.map((result, index) => (
+                                        <div key={index} className="result-item">
                                             <div>
-                                                <strong>错误:</strong> {result.error}
+                                                <span className="result-label">规则:</span>
+                                                <span className="result-value">{result.ruleName}</span>
                                             </div>
-                                        )}
-                                        {result.decision && (
                                             <div>
-                                                <strong>执行决策:</strong> {JSON.stringify(result.decision)}
+                                                <span className="result-label">表达式:</span>
+                                                <span className="result-value">{result.expression}</span>
                                             </div>
-                                        )}
-                                    </div>
-                                ))}
+                                            <div>
+                                                <span className="result-label">匹配结果:</span>
+                                                <span className="result-value">{result.matched ? 'true' : 'false'}</span>
+                                            </div>
+                                            {result.error && (
+                                                <div>
+                                                    <span className="result-label">错误:</span>
+                                                    <span className="result-value">{result.error}</span>
+                                                </div>
+                                            )}
+                                            {result.decision && (
+                                                <div>
+                                                    <span className="result-label">执行决策:</span>
+                                                    <span className="result-value">
+                                                        {JSON.stringify(result.decision, null, 2)}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         )}
                     </div>
                 </div>
             );
-        }
+        };
 
         ReactDOM.render(
             <React.StrictMode>
