@@ -146,14 +146,28 @@
             font-size: 14px;
         }
 
+        /* 规则名称容器 */
+        .rule-name-container {
+            margin-bottom: 8px;
+        }
+
         /* 规则表达式输入 */
-        .rule-expression input {
+        .rule-expression {
             width: 100%;
+            display: block;
+        }
+
+        .rule-expression {
+            width: calc(100% - 24px);
             padding: 8px 12px;
             border: 1px solid #d9d9d9;
             border-radius: 4px;
             font-size: 14px;
             font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            min-height: 60px;
+            resize: vertical;
+            white-space: pre-wrap;
+            word-wrap: break-word;
         }
 
         /* 规则操作按钮 */
@@ -769,7 +783,7 @@
                                                                     value={action.target}
                                                                     onChange={(e) => handleActionChange(rule.id, decision.id, actionIndex, 'target', e.target.value)}
                                                                 >
-                                                                    <option value="ML_DECISION">ML_DECISION</option>
+                                                                    <option value="">请选择</option>
                                                                 </select>
                                                                 <select
                                                                     className="action-select"

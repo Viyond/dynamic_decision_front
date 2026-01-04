@@ -13,7 +13,7 @@ function App() {
           id: 1,
           name: '规则1决策',
           actions: [
-            { type: 'SET', key: 'result', value: 'true', target: 'ML_DECISION' }
+            { type: 'SET', key: 'result', value: 'true', target: '' }
           ]
         }
       ]
@@ -27,7 +27,7 @@ function App() {
           id: 2,
           name: '规则2决策',
           actions: [
-            { type: 'SET', key: 'result', value: 'false', target: 'ML_DECISION' },
+            { type: 'SET', key: 'result', value: 'false', target: '' },
             { type: 'INCR', key: 'key', value: 'Value' }
           ]
         }
@@ -52,9 +52,17 @@ function App() {
 
   // 更新规则名称
   const updateRuleName = (id, name) => {
-    setRules(rules.map(rule => 
-      rule.id === id ? { ...rule, name } : rule
-    ));
+    setRules(rules.map(rule => {
+      if (rule.id === id) {
+        // 更新规则名称，并联动更新所有决策项的名称
+        const updatedDecisions = rule.decisions.map(decision => ({
+          ...decision,
+          name: name + "-决策" // 将决策项的name属性与规则名称保持一致
+        }));
+        return { ...rule, name, decisions: updatedDecisions };
+      }
+      return rule;
+    }));
   };
 
   // 处理动作变更
@@ -83,7 +91,7 @@ function App() {
           if (decision.id === decisionId) {
             return { 
               ...decision, 
-              actions: [...decision.actions, { type: 'SET', key: '', value: '', target: 'ML_DECISION' }]
+              actions: [...decision.actions, { type: 'SET', key: '', value: '', target: '' }]
             };
           }
           return decision;
@@ -126,7 +134,7 @@ function App() {
           decisions: [...rule.decisions, {
             id: newDecisionId,
             name: `决策${newDecisionId}`,
-            actions: [{ type: 'SET', key: '', value: '', target: 'ML_DECISION' }]
+            actions: [{ type: 'SET', key: '', value: '', target: '' }]
           }]
         };
       }
@@ -360,7 +368,7 @@ function App() {
                                 <div className="rule-item">
                                   {/* 规则名编辑 */}
                                   <div className="rule-name-container">
-                                    <span className="rule-prefix">新规则</span>
+                                    <span className="rule-prefix">规则名称:</span>
                                     <input
                                       type="text"
                                       className="rule-name"
@@ -370,12 +378,13 @@ function App() {
                                     />
                                   </div>
                                   {/* 规则表达式编辑 */}
-                                  <input
-                                    type="text"
+                                  <textarea
                                     className="rule-expression"
                                     value={rule.expression}
                                     onChange={(e) => handleRuleExpressionChange(rule.id, e.target.value)}
                                     placeholder="输入规则表达式，例如：age >= 18"
+                                    rows={3}
+                                    style={{ resize: 'vertical' }}
                                   />
                                 </div>
                               </div>
@@ -401,13 +410,6 @@ function App() {
                                     <div className="action-list">
                                       {decision.actions.map((action, idx) => (
                                         <div key={idx} className="action-row">
-                                          <select
-                                            className="action-select"
-                                            value={action.target}
-                                            onChange={(e) => handleActionChange(rule.id, decision.id, idx, 'target', e.target.value)}
-                                          >
-                                            <option value="ML_DECISION">ML_DECISION</option>
-                                          </select>
                                           <select
                                             className="action-select"
                                             value={action.type}
