@@ -196,7 +196,7 @@ function App() {
         passed: result.matched,
         result: result.matched ? '通过' : result.error ? `错误: ${result.error}` : '未通过'
       }));
-      
+
       // 找到第一个匹配的规则结果
       const firstMatch = results.find(result => result.matched);
       const finalResult = firstMatch ? '规则命中' : '未命中任何规则';
@@ -207,6 +207,37 @@ function App() {
     } catch (error) {
       alert('输入JSON格式错误: ' + error.message);
     }
+  };
+  
+  // 保存并启用按钮点击事件处理函数
+  const handleSaveAndEnable = () => {
+    // 创建一个FormData对象，用于提交表单数据
+    const formData = new FormData();
+    
+    // 将规则数据转换为JSON字符串并添加到FormData中
+    formData.append('rules', JSON.stringify(rules));
+    
+    // 发送POST请求到后端接口
+    fetch('/api/rules/save', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      }
+      throw new Error('网络请求失败');
+    })
+    .then(data => {
+      // 处理成功响应
+      alert('规则保存并启用成功！');
+      console.log('保存成功:', data);
+    })
+    .catch(error => {
+      // 处理错误
+      alert('规则保存并启用失败: ' + error.message);
+      console.error('保存失败:', error);
+    });
   };
 
   // 添加新规则
@@ -290,7 +321,7 @@ function App() {
         <div className="header-actions">
           <button className="btn btn-secondary">取消</button>
           <button className="btn btn-secondary">确定</button>
-          <button className="btn btn-primary">保存并启用</button>
+          <button className="btn btn-primary" onClick={handleSaveAndEnable}>保存并启用</button>
         </div>
       </div>
 
